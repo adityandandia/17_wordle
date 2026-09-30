@@ -25,22 +25,44 @@ class WordleGame:
                 return guess
             print(f"Invalid guess. Enter a {self.length}-letter word using letters only.")
 
+    def _print_history(self):
+        """Print all accepted guesses, numbered, with their feedback."""
+        print("Guess history:")
+        for number, (guess, feedback) in enumerate(self.history, start=1):
+            print(f"  {number}. {guess.upper()}  {' '.join(feedback)}")
+
+    def _print_summary(self, result):
+        """Print the end-of-session summary."""
+        print("\n=== Session summary ===")
+        print(f"Target word : {self.target.upper()}")
+        print(f"Result      : {result}")
+        print(f"Guesses used: {len(self.history)}")
+        if self.history:
+            self._print_history()
+        else:
+            print("No guesses were made.")
+
     def run(self):
         print(f"Wordle - {self.length} letters, {MAX_GUESSES} guesses.")
+        result = "Lost"
         while len(self.history) < MAX_GUESSES:
             guess = self._read_guess()
             if guess is None:
                 print("You quit. The word was:", self.target)
-                return
+                result = "Quit"
+                break
 
             feedback = evaluate(self.target, guess)
             self.history.append((guess, feedback))
-            print(" ".join(feedback))
+            self._print_history()
 
             if guess == self.target:
                 print(f"You solved it in {len(self.history)} guesses!")
-                return
+                result = "Won"
+                break
 
             print(f"Guesses left: {MAX_GUESSES - len(self.history)}")
+        else:
+            print("You lost! The word was:", self.target)
 
-        print("You lost! The word was:", self.target)
+        self._print_summary(result)
